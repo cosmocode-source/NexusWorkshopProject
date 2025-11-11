@@ -1,0 +1,48 @@
+To run on the azure terminal
+step 1: After you have downloaded your folder in the AWS
+cd ~/cspm_project/scripts
+chmod +x *.sh
+
+step 2:
+sudo apt update
+sudo apt install python3-pip awscli azure-cli git -y
+pip install flask
+
+
+step 3:
+aws configure
+ 
+AWS Access Key ID [None]: <your-access-key>
+AWS Secret Access Key [None]: <your-secret-key>
+Default region name [None]: ap-south-1   # or your region
+Default output format [None]: json
+
+step 4:
+cd ~/cspm_project
+python3 app.py --host=0.0.0.0
+  
+
+To run in the Azure Terminal
+# === STEP 1: Update and install dependencies ===
+sudo apt update -y && \
+sudo apt install -y python3-pip git awscli azure-cli && \
+pip install flask && \
+
+# === STEP 2: Clone your CSPM project from GitHub ===
+cd ~ && \
+git clone https://github.com/<YOUR_GITHUB_USERNAME>/<YOUR_REPO_NAME>.git cspm_project && \
+cd cspm_project && \
+
+# === STEP 3: Give execute permission to all shell scripts ===
+chmod +x scripts/*.sh && \
+
+# === STEP 4: (Optional) Login to Azure CLI for detection ===
+# If you’re running inside Azure Cloud Shell, you’re already logged in.
+# Otherwise, run this once and follow the login link.
+az login && \
+
+# === STEP 5: (Optional) Configure AWS CLI (if you want multi-cloud) ===
+# aws configure  # Uncomment this line to connect AWS too
+
+# === STEP 6: Run the Flask web dashboard ===
+python3 app.py --host=0.0.0.0

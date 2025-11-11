@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Security Audit Report</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Security Audit Report</h1>
+    <p>Cloud: {{ data.cloud | upper }}</p>
+    <p>Generated: {{ data.timestamp }}</p>
+    <table>
+      <tr><th>Script</th><th>Status</th></tr>
+      {% for r in data.results %}
+      <tr>
+        <td>{{ r.script }}</td>
+        <td>{% if r.ok %}✅ Success{% else %}❌ Failed{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <a href="/download">⬇️ Download JSON Report</a>
+  </div>
+</body>
+</html>
