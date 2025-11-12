@@ -1,48 +1,114 @@
-To run on the azure terminal
-step 1: After you have downloaded your folder in the AWS
-cd ~/cspm_project/scripts
-chmod +x *.sh
+# ============================================================
+# 🌩️ MULTI-CLOUD CSPM DASHBOARD — FULL SETUP & EXECUTION GUIDE
+# ============================================================
+# Works for Azure, AWS, GCP, and OCI on Windows (PowerShell)
+# ============================================================
 
-step 2:
-sudo apt update
-sudo apt install python3-pip awscli azure-cli git -y
-pip install flask
+# ---- 1️⃣ Navigate to Project Directory ----
+cd "C:\Users\arinv\Downloads\My Projects\cspm_project"
 
+# ---- 2️⃣ Allow Script Execution for This Session ----
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
-step 3:
-aws configure
- 
-AWS Access Key ID [None]: <your-access-key>
-AWS Secret Access Key [None]: <your-secret-key>
-Default region name [None]: ap-south-1   # or your region
-Default output format [None]: json
+# ---- 3️⃣ Create and Activate Python Virtual Environment ----
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 
-step 4:
-cd ~/cspm_project
-python3 app.py --host=0.0.0.0
-  
+# ---- 4️⃣ Install Dependencies ----
+pip install -r requirements.txt
 
-To run in the Azure Terminal
-# === STEP 1: Update and install dependencies ===
-sudo apt update -y && \
-sudo apt install -y python3-pip git awscli azure-cli && \
-pip install flask && \
+# ---- 5️⃣ Install Cloud CLIs (Run only once per provider) ----
+# Azure CLI
+#   https://aka.ms/installazurecliwindows
+# AWS CLI
+#   https://awscli.amazonaws.com/AWSCLIV2.msi
+# GCP CLI
+#   https://cloud.google.com/sdk/docs/install
+# OCI CLI
+#   https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/cliinstall.htm#Quickstart
 
-# === STEP 2: Clone your CSPM project from GitHub ===
-cd ~ && \
-git clone https://github.com/<YOUR_GITHUB_USERNAME>/<YOUR_REPO_NAME>.git cspm_project && \
-cd cspm_project && \
+# ---- 6️⃣ Authenticate to Your Cloud Account ----
 
-# === STEP 3: Give execute permission to all shell scripts ===
-chmod +x scripts/*.sh && \
+# ---- For Azure ----
+az login
+az account show
+# (You should see your Azure for Students subscription JSON output)
 
-# === STEP 4: (Optional) Login to Azure CLI for detection ===
-# If you’re running inside Azure Cloud Shell, you’re already logged in.
-# Otherwise, run this once and follow the login link.
-az login && \
+# ---- For AWS ----
+# aws configure
+# Enter Access Key, Secret Key, Region, Output=json
+# aws sts get-caller-identity
 
-# === STEP 5: (Optional) Configure AWS CLI (if you want multi-cloud) ===
-# aws configure  # Uncomment this line to connect AWS too
+# ---- For GCP ----
+# gcloud init
+# gcloud config list account
 
-# === STEP 6: Run the Flask web dashboard ===
-python3 app.py --host=0.0.0.0
+# ---- For OCI ----
+# oci setup config
+# oci os ns get
+
+# ---- 7️⃣ Run Your Flask App ----
+python app.py
+
+# You’ll see:
+#  * Running on http://127.0.0.1:5000
+#  * Debugger active
+
+# ---- 8️⃣ Open in Browser ----
+# Navigate to:
+# http://127.0.0.1:5000
+# Then click “Detect Cloud” → it will detect whichever cloud CLI is logged in.
+
+# ✅ Example Outputs:
+# Azure  -> "Detected Cloud: AZURE"
+# AWS    -> "Detected Cloud: AWS"
+# GCP    -> "Detected Cloud: GCP"
+# OCI    -> "Detected Cloud: OCI"
+# Unknown-> "No supported cloud detected."
+
+# ---- 9️⃣ Run Security Audit and Fix Misconfigurations ----
+# From the UI:
+#   Click “Run Audit” → executes scripts/{cloud}_*.sh
+#   Click “Apply Fixes” → automatically repairs misconfigs
+# Reports are saved in:
+#   reports/security_audit_report.json
+
+# ---- 🔍 Optional: Create Sample Misconfigurations for Testing ----
+# --- Azure ---
+# az storage account create -n insecurestorage$RANDOM -g MyResourceGroup --allow-blob-public-access true
+# az network nsg rule create -g MyResourceGroup --nsg-name defaultNSG --name openAll --priority 100 --access Allow --direction Inbound --protocol "*" --source-address-prefixes "*" --destination-port-ranges "*"
+
+# --- AWS ---
+# aws s3api create-bucket --bucket mypublicbucket123 --region us-east-1
+# aws s3api put-bucket-acl --bucket mypublicbucket123 --acl public-read
+
+# --- GCP ---
+# gsutil mb gs://public-test-bucket-$RANDOM
+# gsutil iam ch allUsers:objectViewer gs://public-test-bucket-$RANDOM
+
+# --- OCI ---
+# oci os bucket create --name public-bucket-$RANDOM --public-access-type ObjectRead
+
+# ---- 🔧 Run Audit Again to See Detected Misconfigs ----
+# Then click “Apply Fixes” to automatically repair them.
+
+# ---- 🔎 View Report ----
+# Click “View Report” in the dashboard, or manually open:
+#   reports/security_audit_report.json
+
+# ---- 🧱 Stop Flask ----
+# Ctrl + C
+
+# ---- 🚪 Deactivate Virtual Environment ----
+deactivate
+
+# ============================================================
+# ✅ SUMMARY
+# ------------------------------------------------------------
+# This setup:
+#  - Detects which cloud (Azure, AWS, GCP, OCI) is active
+#  - Audits security misconfigurations using scripts/
+#  - Applies fixes automatically
+#  - Generates a detailed JSON report
+#  - Works cross-platform (Windows/Linux)
+# ============================================================

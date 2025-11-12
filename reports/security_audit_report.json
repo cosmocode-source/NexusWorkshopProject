@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-11-12T12:34:50.041753",
+  "cloud": "azure",
+  "results": [
+    {
+      "script": "azure_enable_subscription_logging.sh",
+      "ok": false,
+      "stdout": "=== Ensuring Logging Resource Group exists ===\nResource group DefaultResourceGroup-CSPM already exists.\n=== Ensuring Log Analytics Workspace exists ===\nCreating workspace cspm-log-workspace in eastus...",
+      "stderr": "ERROR: (RequestDisallowedByAzure) Resource 'cspm-log-workspace' was disallowed by Azure: This policy maintains a set of best available regions where your subscription can deploy resources. The objective of this policy is to ensure that your subscription has full access to Azure services with optimal performance. Should you need additional or different regions, contact support..\nCode: RequestDisallowedByAzure\nMessage: Resource 'cspm-log-workspace' was disallowed by Azure: This policy maintains a set of best available regions where your subscription can deploy resources. The objective of this policy is to ensure that your subscription has full access to Azure services with optimal performance. Should you need additional or different regions, contact support..\nTarget: cspm-log-workspace\nscripts\\azure_enable_subscription_logging.sh: line 31: unexpected EOF while looking for matching `\"'"
+    },
+    {
+      "script": "azure_enforce_mfa_policy.sh",
+      "ok": false,
+      "stdout": "",
+      "stderr": "'NoneType' object has no attribute 'strip'"
+    },
+    {
+      "script": "azure_enforce_storage_and_disk_security.sh",
+      "ok": false,
+      "stdout": "",
+      "stderr": "'NoneType' object has no attribute 'strip'"
+    },
+    {
+      "script": "azure_function_secret_audit.sh",
+      "ok": true,
+      "stdout": "============================================================\n--- Azure Function Secrets Auditor ---\n============================================================\n============================================================\nRecommendation:\n\u00e2\u2020\u2019 Store all secrets in Azure Key Vault.\n\u00e2\u2020\u2019 Integrate Key Vault with Function App via managed identity.\n\u00e2\u2020\u2019 Rotate credentials regularly.",
+      "stderr": "D:\\a\\_work\\1\\s\\build_scripts\\windows\\artifacts\\cli\\Lib\\site-packages\\cryptography/hazmat/backends/openssl/backend.py:8: UserWarning: You are using cryptography on a 32-bit Python on a 64-bit Windows Operating System. Cryptography will be significantly faster if you switch to using a 64-bit Python."
+    },
+    {
+      "script": "azure_monitoring_guardrails_setup.sh",
+      "ok": true,
+      "stdout": "============================================================\n--- Azure Monitoring & Guardrails Setup ---\n============================================================\n============================================================\nVerification Steps:\n\u00e2\u2020\u2019 Check Defender alerts in Security Center.\n\u00e2\u2020\u2019 Validate Azure Policy compliance results.\n\u00e2\u2020\u2019 Ensure alerts notify your security team.",
+      "stderr": "ERROR: (Subscription Not Registered) Please register to Microsoft.Security in order to view your security status\nCode: Subscription Not Registered\nMessage: Please register to Microsoft.Security in order to view your security status\nERROR: (PolicyDefinitionNotFound) The policy definition '3a7b64d2-04ba-44b2-9e1a-4a3d1bcd0a33' could not be found.\nCode: PolicyDefinitionNotFound\nMessage: The policy definition '3a7b64d2-04ba-44b2-9e1a-4a3d1bcd0a33' could not be found.\nERROR: The command failed with an unexpected error. Here is the traceback:\nERROR: 'NoneType' object has no attribute 'get'\nTraceback (most recent call last):\n  File \"D:\\a\\_work\\1\\s\\build_scripts\\windows\\artifacts\\cli\\Lib\\site-packages\\knack/cli.py\", line 233, in invoke\n  File \"D:\\a\\_work\\1\\s\\build_scripts\\windows\\artifacts\\cli\\Lib\\site-packages\\azure/cli/core/commands/__init__.py\", line 666, in execute\n  File \"D:\\a\\_work\\1\\s\\build_scripts\\windows\\artifacts\\cli\\Lib\\site-packages\\azure/cli/core/commands/__init__.py\", line 734, in _run_jobs_serially\n  File \"D:\\a\\_work\\1\\s\\build_scripts\\windows\\artifacts\\cli\\Lib\\site-packages\\azure/cli/core/commands/__init__.py\", line 703, in _run_job\n  File \"D:\\a\\_work\\1\\s\\build_scripts\\windows\\artifacts\\cli\\Lib\\site-packages\\azure/cli/core/aaz/_command.py\", line 155, in __call__\n  File \"D:\\a\\_work\\1\\s\\build_scripts\\windows\\artifacts\\cli\\Lib\\site-packages\\azure/cli/command_modules/resource/aaz/latest/policy/assignment/_create.py\", line 50, in _handler\n  File \"D:\\a\\_work\\1\\s\\build_scripts\\windows\\artifacts\\cli\\Lib\\site-packages\\azure/cli/command_modules/resource/aaz/latest/policy/assignment/_create.py\", line 277, in _execute_operations\n  File \"D:\\a\\_work\\1\\s\\build_scripts\\windows\\artifacts\\cli\\Lib\\site-packages\\azure/cli/command_modules/resource/policy.py\", line 312, in pre_operations\n  File \"D:\\a\\_work\\1\\s\\build_scripts\\windows\\artifacts\\cli\\Lib\\site-packages\\azure/cli/command_modules/resource/policy.py\", line 180, in ResolvePolicyId\nAttributeError: 'NoneType' object has no attribute 'get'\nTo check existing issues, please visit: https://github.com/Azure/azure-cli/issues\nERROR: the following arguments are required: --resource-group/-g\n\nExamples from AI knowledge base:\naz monitor activity-log alert create -n AlertName -g ResourceGroup --condition category=ServiceHealth and level=Error\nCreate an alert rule with condition about error level service health log.\n\naz monitor activity-log alert create -n AlertName -g ResourceGroup -a /subscriptions/{SubID}/resourceGroups/{ResourceGroup}/providers/microsoft.insights/actionGroups/{ActionGroup} -w usage=test owner=jane\nCreate an alert rule with an action group and specify webhook properties.\n\naz monitor activity-log alert create -n AlertName -g ResourceGroup\nCreate an alert rule with default settings.\n\nhttps://aka.ms/cli_ref\nRead more about the command in reference docs"
+    },
+    {
+      "script": "azure_restrict_public_access.sh",
+      "ok": false,
+      "stdout": "=== Disabling Public Network Access for all Azure SQL Servers ===\n    [!] WARNING: This is a high-risk command. See Section 6.2.\nNo Azure SQL servers found.\n=== Auditing NSGs for public admin ports (RDP/SSH) ===",
+      "stderr": "ERROR: the following arguments are required: --resource-group/-g, --nsg-name\n\nExamples from AI knowledge base:\naz network nsg rule list -g MyResourceGroup --nsg-name MyNsg\nList all rules in a network security group.\n\nhttps://aka.ms/cli_ref\nRead more about the command in reference docs"
+    },
+    {
+      "script": "azure_vnet_segmentation_audit.sh",
+      "ok": true,
+      "stdout": "============================================================\n--- Azure VNet Segmentation & Isolation Auditor ---\n============================================================\n\n[INFO] Checking for open NSG rules (0.0.0.0/0)...\n============================================================\nRecommendation:\n\u00e2\u2020\u2019 Use separate VNets for dev, staging, prod.\n\u00e2\u2020\u2019 Restrict NSG inbound rules and use Service Tags when possible.",
+      "stderr": "ERROR: (ResourceGroupNotFound) Resource group 'Cybersec-Audit-RG' could not be found.\nCode: ResourceGroupNotFound\nMessage: Resource group 'Cybersec-Audit-RG' could not be found.\nERROR: (ResourceGroupNotFound) Resource group 'Cybersec-Audit-RG' could not be found.\nCode: ResourceGroupNotFound\nMessage: Resource group 'Cybersec-Audit-RG' could not be found."
+    }
+  ]
+}

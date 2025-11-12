@@ -1,38 +1,31 @@
 #!/bin/bash
-# --- Enable Subscription-Wide Activity Logging ---
-set -e
+echo "=== Ensuring Logging Resource Group exists ==="
 
-LOG_RG="central-logging-rg"
-LOG_LA_WORKSPACE="central-la-workspace"
-LOG_STORAGE_ACCT="centralactivitylogs$(openssl rand -hex 6)"
+# Define safe region and resource group name
+RESOURCE_GROUP="DefaultResourceGroup-CSPM"
 LOCATION="eastus"
 
-echo "=== Ensuring Logging Resource Group exists ==="
-az group create --name "$LOG_RG" --location "$LOCATION" -o tsv >/dev/null
+# Check if resource group exists
+if ! az group show --name "$RESOURCE_GROUP" >/dev/null 2>&1; then
+  echo "Creating resource group $RESOURCE_GROUP in $LOCATION..."
+  az group create --name "$RESOURCE_GROUP" --location "$LOCATION" >/dev/null
+else
+  echo "Resource group $RESOURCE_GROUP already exists."
+fi
 
 echo "=== Ensuring Log Analytics Workspace exists ==="
-LA_WORKSPACE_ID=$(az monitor log-analytics workspace create \
-  --resource-group "$LOG_RG" \
-  --workspace-name "$LOG_LA_WORKSPACE" \
-  --location "$LOCATION" --query "id" -o tsv)
+WORKSPACE="cspm-log-workspace"
 
-echo "=== Ensuring Storage Account for logs exists ==="
-STORAGE_ID=$(az storage account create \
-  --name "$LOG_STORAGE_ACCT" \
-  --resource-group "$LOG_RG" \
-  --location "$LOCATION" \
-  --sku "Standard_LRS" --query "id" -o tsv)
+# Check if workspace exists, else create it in an allowed region
+if ! az monitor log-analytics workspace show \
+  --resource-group "$RESOURCE_GROUP" --workspace-name "$WORKSPACE" >/dev/null 2>&1; then
+  echo "Creating workspace $WORKSPACE in $LOCATION..."
+  az monitor log-analytics workspace create \
+    --resource-group "$RESOURCE_GROUP" \
+    --workspace-name "$WORKSPACE" \
+    --location "$LOCATION" >/dev/null
+else
+  echo "Workspace $WORKSPACE already exists."
+fi
 
-echo "=== Creating Subscription Diagnostic Setting ==="
-# This command is idempotent; it will update if it exists
-az monitor diagnostic-settings subscription create \
-  --name "send-activity-log-to-central" \
-  --location "$LOCATION" \
-  --storage-account "$STORAGE_ID" \
-  --workspace "$LA_WORKSPACE_ID" \
-  --logs '[{"category": "Administrative", "enabled": true}, {"category": "Security", "enabled": true}, \
-           {"category": "ServiceHealth", "enabled": true}, {"category": "Alert", "enabled": true}, \
-           {"category": "Recommendation", "enabled": true}, {"category": "Policy", "enabled": true}]' \
-  >/dev/null
-           
-echo "✅ Subscription-wide logging enabled and exporting to LA and Storage."
+echo "=== Linking Activity Log to Log Analytics Workspace ===

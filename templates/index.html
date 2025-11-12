@@ -2,19 +2,131 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Cloud Security Auditor</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Cloud Security Posture Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <div class="container">
-    <h1>☁️ Cloud Security Auditor Dashboard</h1>
-    <p id="status">Detecting cloud...</p>
-    <button onclick="runAudit()">🔍 Run Audit</button>
-    <button onclick="runFix()">🛠️ Fix All Issues</button>
-    <button onclick="viewReport()">📄 View Report</button>
-    <pre id="log"></pre>
+    <h1>Cloud Security Posture Dashboard</h1>
+    <div class="subtitle">
+      Audit • Detect • Remediate misconfigurations across AWS, Azure, GCP & OCI
+    </div>
+
+    <div id="statusBox">
+      <p><strong>Detected Cloud:</strong>
+  <span id="cloudName" class="cloud-status none">Detecting...</span>
+</p>
+
+      <p><strong>Audit Status:</strong> <span id="auditStatus">Idle</span></p>
+    </div>
+
+    <div style="text-align:center; margin-bottom:1.5rem;">
+      <button id="detectBtn" onclick="detectCloud()">🔍 Detect Cloud</button>
+      <button id="auditBtn" onclick="runAudit()">🧩 Run Audit</button>
+      <button id="fixBtn" onclick="runFix()">🛠 Apply Fixes</button>
+      <button class="secondary" onclick="viewReport()">📄 View Report</button>
+    </div>
+
+    <pre id="log">Initializing dashboard...</pre>
   </div>
 
-  <script src="/static/script.js"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script>
+    // === Extended Frontend Logic ===
+    async function detectCloud() {
+      const cloudElem = document.getElementById("cloudName");
+      const logBox = document.getElementById("log");
+      cloudElem.textContent = "Detecting...";
+      logBox.textContent = "Running environment detection...\n";
+
+      try {
+        const res = await fetch("/detect");
+        const data = await res.json();
+        if (data.cloud && data.cloud !== "none") {
+          cloudElem.textContent = data.cloud.toUpperCase();
+          logBox.textContent += `✅ Detected cloud: ${data.cloud.toUpperCase()}\n`;
+        } else {
+          cloudElem.textContent = "Unknown";
+          logBox.textContent += "⚠️  No cloud environment detected.\n";
+        }
+      } catch (err) {
+        cloudElem.textContent = "Error";
+        logBox.textContent += `❌ Detection error: ${err}\n`;
+      }
+    }
+
+    async function runAudit() {
+      const logBox = document.getElementById("log");
+      const cloudElem = document.getElementById("cloudName");
+      const auditStatus = document.getElementById("auditStatus");
+
+      logBox.textContent = "Running audit...\n";
+      auditStatus.textContent = "Running...";
+
+      try {
+        const res = await fetch("/audit");
+        const data = await res.json();
+
+        if (data.error) {
+          logBox.textContent += `❌ ${data.error}\n`;
+          auditStatus.textContent = "Error";
+          return;
+        }
+
+        cloudElem.textContent = data.cloud.toUpperCase();
+        auditStatus.textContent = "Completed";
+
+        logBox.textContent += `🌐 Cloud: ${data.cloud.toUpperCase()}\n`;
+        data.findings.forEach(f => {
+          logBox.textContent += `• ${f.issue} → ${f.script}\n`;
+        });
+
+        logBox.textContent += "\n✅ Audit finished.\n";
+      } catch (err) {
+        auditStatus.textContent = "Error";
+        logBox.textContent += `❌ Audit failed: ${err}\n`;
+      }
+    }
+
+    async function runFix() {
+      const logBox = document.getElementById("log");
+      const auditStatus = document.getElementById("auditStatus");
+      logBox.textContent += "\n🛠 Applying fixes...\n";
+      auditStatus.textContent = "Applying fixes...";
+
+      try {
+        const res = await fetch("/fix", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}) // auto-detect cloud in backend
+        });
+        const data = await res.json();
+
+        if (data.error) {
+          logBox.textContent += `❌ ${data.error}\n`;
+          auditStatus.textContent = "Error";
+          return;
+        }
+
+        data.results.forEach(r => {
+          logBox.textContent += `${r.script}: ${r.ok ? "✅ Success" : "❌ Failed"}\n`;
+        });
+
+        auditStatus.textContent = "Fixes Applied";
+        logBox.textContent += "\n✅ All applicable fixes executed.\n";
+      } catch (err) {
+        auditStatus.textContent = "Error";
+        logBox.textContent += `❌ Fix failed: ${err}\n`;
+      }
+    }
+
+    function viewReport() {
+      window.location.href = "/report";
+    }
+
+    // Auto-detect on page load
+    detectCloud();
+  </script>
 </body>
 </html>

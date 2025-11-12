@@ -3,23 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <title>Security Audit Report</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .report-container {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      padding: 2rem;
+      max-width: 900px;
+      margin: 2rem auto;
+    }
+    .report-header {
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+    }
+    .report-header h2 {
+      color: var(--primary-dark);
+      margin: 0;
+    }
+    .report-meta {
+      color: #555;
+      font-size: 0.9rem;
+    }
+    .result {
+      border: 1px solid var(--border);
+      border-left: 6px solid var(--primary);
+      border-radius: 6px;
+      padding: 0.8rem;
+      margin: 0.8rem 0;
+      background: #f9fbfd;
+    }
+    .result.ok {
+      border-left-color: var(--success);
+    }
+    .result.error {
+      border-left-color: var(--danger);
+    }
+    .stdout, .stderr {
+      background: var(--terminal-bg);
+      color: var(--terminal-text);
+      font-family: monospace;
+      font-size: 0.85rem;
+      padding: 8px;
+      border-radius: 6px;
+      margin-top: 5px;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Security Audit Report</h1>
-    <p>Cloud: {{ data.cloud | upper }}</p>
-    <p>Generated: {{ data.timestamp }}</p>
-    <table>
-      <tr><th>Script</th><th>Status</th></tr>
-      {% for r in data.results %}
-      <tr>
-        <td>{{ r.script }}</td>
-        <td>{% if r.ok %}✅ Success{% else %}❌ Failed{% endif %}</td>
-      </tr>
-      {% endfor %}
-    </table>
-    <a href="/download">⬇️ Download JSON Report</a>
+  <div class="report-container">
+    <div class="report-header">
+      <h2>Security Audit Report</h2>
+      <div class="report-meta">
+        Cloud: <strong>{{ data.cloud | upper }}</strong> <br>
+        Timestamp: <strong>{{ data.timestamp }}</strong>
+      </div>
+    </div>
+
+    {% for r in data.results %}
+    <div class="result {{ 'ok' if r.ok else 'error' }}">
+      <strong>{{ r.script }}</strong> — 
+      {{ '✅ Success' if r.ok else '❌ Failed' }}
+      {% if r.stdout %}
+      <div class="stdout">{{ r.stdout }}</div>
+      {% endif %}
+      {% if r.stderr %}
+      <div class="stderr">{{ r.stderr }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+    <div style="text-align:center; margin-top:1.5rem;">
+      <a href="/" style="text-decoration:none;">
+        <button class="secondary">⬅ Back to Dashboard</button>
+      </a>
+    </div>
   </div>
 </body>
 </html>

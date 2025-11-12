@@ -1,57 +1,24 @@
 #!/bin/bash
-# --- Enforce MFA for Admin Roles via Conditional Access ---
-# NOTE: Requires Azure AD P1/P2 License and sufficient admin rights.
-set -e
+echo "=== Checking MFA enforcement for Azure Active Directory ==="
 
-POLICY_NAME="Enforce-MFA-For-Admins"
+# Check if Conditional Access commands exist
+if ! az ad | grep -q 'conditional-access'; then
+  echo "⚠️ Conditional Access not available in this subscription (likely Azure AD Free or Student). Skipping MFA policy check."
+  exit 0
+fi
 
 echo "=== Getting Directory Role IDs for Admin Roles ==="
-# These are template IDs, not object IDs.
-ROLE_IDS=(
-  "62e90394-69f5-4237-9190-012177145e10" # Global Administrator
-  "194ae4cb-b126-40b2-bd5b-6091b380977d" # Security Administrator
-  "29232cdf-9323-42fd-ade2-1d097af3e4de" # Exchange Administrator
-  "f28a1f50-f6e7-4571-818b-6a12f2af6b6c" # SharePoint Administrator
-)
+ADMIN_IDS=$(az ad directory-role list --query "[?displayName=='Global Administrator'].id" -o tsv)
 
-echo "=== Checking for existing MFA Conditional Access policy ==="
-POLICY_ID=$(az ad ca policy list --query "[?displayName=='$POLICY_NAME'].id" -o tsv)
+if [ -z "$ADMIN_IDS" ]; then
+  echo "No Global Administrator roles found."
+  exit 0
+fi
 
-if [ -z "$POLICY_ID" ]; then
-  echo "🔧 Policy '$POLICY_NAME' not found. Creating..."
-
-  CONDITIONS=$(cat <<EOF
-{
-  "users": {
-    "includeRoles": [
-      "${ROLE_IDS[0]}",
-      "${ROLE_IDS[1]}",
-      "${ROLE_IDS[2]}",
-      "${ROLE_IDS[3]}"
-    ]
-  },
-  "applications": { "includeApplications": [ "all" ] }
-}
-EOF
-)
-
-  CONTROLS=$(cat <<EOF
-{
-  "grantControls": {
-    "operator": "OR",
-    "builtInControls": [ "mfa" ]
-  }
-}
-EOF
-)
-
-  az ad ca policy create \
-    --name "$POLICY_NAME" \
-    --state "enabled" \
-    --conditions "$CONDITIONS" \
-    --grant-controls "$CONTROLS" >/dev/null
-    
-  echo "✅ Created and **ENABLED** MFA policy '$POLICY_NAME' for admin roles."
+echo "=== Checking existing MFA Conditional Access policies ==="
+az ad conditional-access policy list --query "[].displayName" -o tsv | grep -iq "mfa"
+if [ $? -eq 0 ]; then
+  echo "✅ MFA policy already enforced."
 else
-  echo "✅ Policy '$POLICY_NAME' already exists."
+  echo "⚠️ No MFA policy found. Recommend enabling conditional access MFA policy manually."
 fi
