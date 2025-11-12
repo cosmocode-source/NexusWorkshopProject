@@ -30,26 +30,12 @@ Currently, the demo focuses on Microsoft Azure using the Azure CLI, but the same
 
 ## Folder Structure
 
-cspm_project/
-│
-├── app.py # Flask backend
-├── requirements.txt # Python dependencies
-├── templates/ # HTML templates (dashboard + reports)
-├── static/
-│ ├── style.css # Front-end styling
-│ └── script.js # Front-end logic
-├── scripts/ # Cloud-specific audit + fix scripts
-│ ├── azure_enable_subscription_logging.sh
-│ ├── azure_enforce_mfa_policy.sh
-│ ├── azure_enforce_storage_and_disk_security.sh
-│ ├── aws_lambda_secret_audit.sh
-│ ├── gcp_storage_audit.sh
-│ └── oci_public_bucket_audit.sh
-└── reports/ # Generated audit reports
+<img width="640" height="581" alt="Screenshot 2025-11-12 182951" src="https://github.com/user-attachments/assets/ec44dff5-57aa-478a-83c1-846c39997298" />
+
 
 ## Setup and Run
 1. Clone the repository
-git clone https://github.com/<your-username>/<your-repo>.git
+git clone https://github.com/cosmocode-source/NexusWorkshopProject
 cd cspm_project
 
 2. Create and activate a virtual environment
