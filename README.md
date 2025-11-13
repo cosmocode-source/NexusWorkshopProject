@@ -1,4 +1,4 @@
-# Multi-Cloud Cloud Security Posture Management (CSPM) Dashboard
+# Multi-Cloud Security Posture Management (CSPM) Dashboard
 
 A Flask-based web application that automatically detects, audits, and remediates misconfigurations across multiple cloud environments — currently demonstrated on Microsoft Azure, but compatible with AWS, Google Cloud, and Oracle Cloud Infrastructure (OCI).
 
